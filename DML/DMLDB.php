@@ -89,80 +89,70 @@ Class DMLDB
 		$query = "UPDATE ".$table." SET ";
 
 		$data_type = Database::Data_Type($table);
-
+		$fields_being_changed = '';
 		$count = 0;
 
-		if($fields_to_be_changed && $New_field_value)
+
+		foreach($fields_to_be_changed as $changed_field)
 		{
-			foreach($fields_to_be_changed as $changed_field)
+			$value = $New_field_value[$count];
+
+			if(in_array($changed_field, $data_type['columns_string']))
 			{
-				if(in_array($changed_field, $data_type['columns_string']))
-				{
-					$value = "'".(string)$New_field_value[$count]."'";	
-				}
-				elseif((string)$operator[$count] == 'in')
-				{
-					$value = (string)$New_field_value[$count];
-				}
-				else
-				{
-					$value = (int)$New_field_value[$count];
-				}
-
-
-				if($count == 0)
-				{
-					$fields_being_changed = (string)$changed_field." = ".$value;
-				}
-				else
-				{
-					$fields_being_changed = $fields_being_changed.", ".(string)$changed_field." = ".$value;
-				}
-			
-				$count++;
+				$value = "'".$New_field_value[$count]."'";
 			}
 
-			$count2 = 0;
-			$Conditions = '';
+			$fields_being_changed = $fields_being_changed.", ".$changed_field." = ".$value;
 
-			foreach($Condition_field as $C_field)
+			if($count == 0)
 			{
-				if(in_array($C_field, $data_type['columns_string']) || (string)$operator[$count2] == 'like')
-				{
-					$value = "'".(string)$Condition_value[$count2]."'";	
-				}
-				elseif((string)$operator[$count2] == 'in')
-				{
-					$value = (string)$Condition_value[$count2];
-				}
-				else
-				{
-					$value = (int)$Condition_value[$count2];
-				}
-
-				if($count2 == 0)
-				{
-					$Conditions = " WHERE ".(string)$C_field." ".(string)$operator[$count2]." ".$value;
-				}
-				else
-				{
-					$Conditions = $Conditions." AND ".(string)$C_field." ".(string)$operator[$count2]." ".$value;
-				}
-			
-				$count2++;
+				$fields_being_changed = $changed_field." = ".$value;
 			}
+
+			$count++;
 		}
+
+		$count2 = 0;
+		$Conditions = '';
+
+		foreach($Condition_field as $C_field)
+		{
+			$value = $Condition_value[$count2];
+
+			if(in_array($C_field, $data_type['columns_string']) || (string)$operator[$count2] == 'like')
+			{
+				$value = "'".$Condition_value[$count2]."'";
+			}
+
+			$Conditions = $Conditions." AND ".$C_field." ".$operator[$count2]." ".$value;
+
+			if($count2 == 0)
+			{
+				$Conditions = " WHERE ".$C_field." ".$operator[$count2]." ".$value;
+			}
+
+			$count2++;
+		}
+
 
 		$data = Database::execute($query.$fields_being_changed.$Conditions);
 		return $data;
 	}
 }
 
-$table = 'user';
-$fields = ['name', 'email', 'password', 'phone', 'status', 'term'];
-$values = ['Luana', 'luana@gmail.com', '123456', '26293768', 'active', 'yes'];
-$teste = DMLDB::Insert($table, $fields, $values);
-print_r($teste);
+
+
+
+// TESTE PARA FUNÇÃO UPDATE
+//$table = 'user';
+//$fields_to_be_changed =  ['name', 'email', 'password'];
+//$New_field_value = ['Joel', 'Joel@gmail.com', '654654'];
+//$Condition_field = ['created_at', 'phone'];
+//$operator = ['>', '='];
+//$Condition_value = ['2020-08-02', '26293768'];
+
+//$teste = DMLDB::Update($table, $fields_to_be_changed, $New_field_value, $Condition_field, $operator, $Condition_value);
+//print_r($teste);
 
 
 
