@@ -58,31 +58,21 @@ Class DMLDB
 
 		foreach ($fields as $field)
 		{
-			if($count == 0)
-			{
-				$query_fields = (string)$field;	
-			}
-			else
-			{
-				$query_fields = $query_fields.", ".$field;
-			}
+
+			$value = $values[$count];
 
 			if(in_array($field, $data_type['columns_string']))
 			{
 				$value = "'".(string)$values[$count]."'";
 			}
-			else
-			{
-				$value = $values[$count];
-			}
+
+			$query_fields = $query_fields.", ".$field;
+			$query_values = $query_values.", ".$value;
 
 			if($count == 0)
 			{
-				$query_values = (string)$value;	
-			}
-			else
-			{
-				$query_values = $query_values.", ".$value;
+				$query_fields = (string)$field;
+				$query_values = (string)$value;
 			}
 
 			$count++;
@@ -164,17 +154,14 @@ Class DMLDB
 		}
 
 		$data = Database::execute($query.$fields_being_changed.$Conditions);
-		return $query.$fields_being_changed.$Conditions;
-	}
-
-	function name()
-	{
-	    echo "Meu nome é " , get_class($this) , "\n";
+		return $data;
 	}
 }
 
-
-$teste = DMLDB::Update('user',['name'], ['tyi'], ['name', 'password'], ['=','!='], ['kk', '26293768']);
+$table = 'user';
+$fields = ['name', 'email', 'password', 'phone', 'status', 'term'];
+$values = ['Luana', 'luana@gmail.com', '123456', '26293768', 'active', 'yes'];
+$teste = DMLDB::Insert($table, $fields, $values);
 print_r($teste);
 
 
